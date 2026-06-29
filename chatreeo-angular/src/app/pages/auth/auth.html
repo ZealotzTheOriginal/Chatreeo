@@ -1,0 +1,82 @@
+<div class="auth-wrapper">
+  <div class="auth-card">
+    <div class="auth-logo">
+      <span class="logo-icon">💬</span>
+      <h1>Chatreeo</h1>
+      <p class="tagline">Conversaciones inteligentes en tiempo real</p>
+    </div>
+
+    <div class="auth-tabs">
+      <button [class.active]="mode() === 'login'" (click)="mode.set('login')">Iniciar sesión</button>
+      <button [class.active]="mode() === 'register'" (click)="mode.set('register')">Registrarse</button>
+    </div>
+
+    <form (ngSubmit)="submit()" #authForm="ngForm" class="auth-form">
+
+      @if (mode() === 'register') {
+        <div class="field" [@slideIn]>
+          <label for="displayName">Nombre de usuario</label>
+          <input
+            id="displayName"
+            type="text"
+            [(ngModel)]="displayName"
+            name="displayName"
+            placeholder="¿Cómo te llamás?"
+            required
+            autocomplete="name"
+          />
+        </div>
+      }
+
+      <div class="field">
+        <label for="email">Email</label>
+        <input
+          id="email"
+          type="email"
+          [(ngModel)]="email"
+          name="email"
+          placeholder="tu@email.com"
+          required
+          autocomplete="email"
+        />
+      </div>
+
+      <div class="field">
+        <label for="password">Contraseña</label>
+        <input
+          id="password"
+          type="password"
+          [(ngModel)]="password"
+          name="password"
+          placeholder="••••••••"
+          required
+          autocomplete="current-password"
+        />
+      </div>
+
+      @if (mode() === 'register') {
+        <div class="field">
+          <label for="language">Idioma preferido</label>
+          <select id="language" [(ngModel)]="language" name="language">
+            @for (lang of languages; track lang.code) {
+              <option [value]="lang.code">{{ lang.label }}</option>
+            }
+          </select>
+        </div>
+      }
+
+      @if (error()) {
+        <div class="error-msg">{{ error() }}</div>
+      }
+
+      <button type="submit" class="btn-submit" [disabled]="loading()">
+        @if (loading()) {
+          <span class="spinner"></span>
+        } @else {
+          {{ mode() === 'login' ? 'Entrar' : 'Crear cuenta' }}
+        }
+      </button>
+
+    </form>
+  </div>
+</div>

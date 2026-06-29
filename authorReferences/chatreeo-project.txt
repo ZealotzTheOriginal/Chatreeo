@@ -1,0 +1,39 @@
+Stack:
+
+Usar Websockets para comunicación en tiempo real.
+Usar FastAPI como backend.
+Usar Angular como frontend.
+Usar Firebase para Autenticación.
+Usar Firestore para base de datos.
+Usar Deepseek API para la comunicación inteligente de una IA.
+
+La app:
+
+El usuario debe comunicarse con una IA para conversar. 
+La IA debe tener la capacidad de aprender del usuario y adaptarse a su estilo de comunicación.
+La IA debe tener la capacidad de recordar conversaciones pasadas.
+
+Debe ofrecer distintos idiomas y tener una manera de traducir lo que dice al idioma del usuario.
+
+Como reto la App debe tener la capacidad de tener un chat de 3 personas en tiempo real en el mismo
+chat con la IA, para que esto no represente un problema en tema de "tokens" se debe usar
+una manera de optimizar la comunicación entre todos los usuarios, por lo tanto la IA respondera si
+los dos usuarios no envian un mensaje en un lapso de 5 segundos. Tomando el contexto de sus mensajes en ese tiempo.
+
+Para que esto sea posible se necesita un sistema de estado compartido entre los tres usuarios.
+La IA se debe adaptar al contexto de la conversación. Casual, profesional, etc. y debe ser capaz de entender el contexto y lo que los usuarios quieren expresar.
+
+La UI debe ser lo mas limpia y agradable posible, con animaciones fluidas y una experiencia de usuario intuitiva.
+Es importante que el frontend tenga un sistema de paginas con singletons por página para optimizar el uso de recursos.
+
+Una guia minima de la estructura de la web seria este:
+
+1- Front:
+
+Pagina del formulario de registro
+Pagina del chat
+
+2- Back:
+
+Endpoint del formulario de registro
+Endpoint del chat

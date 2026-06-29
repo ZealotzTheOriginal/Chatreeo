@@ -1,0 +1,160 @@
+<!-- LOBBY VIEW -->
+@if (view() === 'lobby') {
+  <div class="lobby-wrapper">
+    <div class="lobby-card">
+      <div class="lobby-header">
+        <div class="logo">💬 <span>Chatreeo</span></div>
+        <button class="btn-ghost logout-btn" (click)="logout()">Salir</button>
+      </div>
+
+      <h2>Bienvenido, {{ currentDisplayName }}</h2>
+      <p class="subtitle">Creá una sala nueva o unite a una existente para chatear con la IA</p>
+
+      <div class="lobby-actions">
+        <button class="btn-primary" (click)="createRoom()" [disabled]="loading()">
+          @if (loading()) { <span class="spinner-sm"></span> } @else { ✨ Crear sala nueva }
+        </button>
+
+        <div class="divider"><span>o</span></div>
+
+        <div class="join-row">
+          <input
+            type="text"
+            [(ngModel)]="joinRoomId"
+            placeholder="ID de sala"
+            (keydown.enter)="joinRoom()"
+          />
+          <button class="btn-secondary" (click)="joinRoom()" [disabled]="loading() || !joinRoomId.trim()">
+            Unirse
+          </button>
+        </div>
+      </div>
+
+      @if (error()) {
+        <div class="error-msg">{{ error() }}</div>
+      }
+    </div>
+  </div>
+}
+
+<!-- CHAT VIEW -->
+@if (view() === 'chat') {
+  <div class="chat-layout">
+
+    <!-- SIDEBAR -->
+    <aside class="sidebar">
+      <div class="sidebar-logo">💬 Chatreeo</div>
+
+      <div class="room-info">
+        <span class="room-label">Sala</span>
+        <div class="room-id-row">
+          <code class="room-id">{{ roomId() }}</code>
+          <button class="btn-icon" title="Copiar ID" (click)="copyRoomId()">📋</button>
+        </div>
+      </div>
+
+      <div class="participants-section">
+        <span class="section-label">Participantes</span>
+        <ul class="participants-list">
+          @for (user of (roomState$ | async)?.users ?? []; track user.uid) {
+            <li [class.is-me]="user.uid === currentUid">
+              <span class="avatar">{{ user.display_name[0].toUpperCase() }}</span>
+              <span class="uname">{{ user.display_name }}</span>
+              @if (user.uid === currentUid) { <span class="you-tag">tú</span> }
+            </li>
+          }
+          <li class="ai-participant">
+            <span class="avatar ai-avatar">🤖</span>
+            <span class="uname">Chatreeo AI</span>
+            @if (aiTyping$ | async) {
+              <span class="typing-dot"></span>
+            }
+          </li>
+        </ul>
+      </div>
+
+      <div class="connection-status" [class]="(connectionStatus$ | async) ?? 'disconnected'">
+        <span class="dot"></span>
+        {{ (connectionStatus$ | async) === 'connected' ? 'Conectado' : 'Reconectando...' }}
+      </div>
+
+      <button class="btn-leave" (click)="leaveRoom()">← Salir de la sala</button>
+    </aside>
+
+    <!-- MAIN CHAT AREA -->
+    <main class="chat-main">
+
+      <div class="chat-topbar">
+        <div class="room-title">
+          <span class="dot-connected"></span>
+          Sala <strong>{{ roomId() }}</strong>
+        </div>
+      </div>
+
+      <!-- NOTIFICATION TOAST -->
+      @if (notification()) {
+        <div class="toast">{{ notification() }}</div>
+      }
+
+      <!-- MESSAGES -->
+      <div class="messages-area">
+        @for (msg of (messages$ | async) ?? []; track msg.id) {
+          <div
+            class="message-row"
+            [class.mine]="isMine(msg)"
+            [class.ai]="isAI(msg)"
+            [class.theirs]="!isMine(msg) && !isAI(msg)"
+          >
+            @if (!isMine(msg)) {
+              <div class="avatar-bubble">
+                @if (isAI(msg)) { 🤖 } @else { {{ msg.sender_name[0].toUpperCase() }} }
+              </div>
+            }
+            <div class="bubble-wrap">
+              @if (!isMine(msg)) {
+                <span class="sender-name">{{ isAI(msg) ? 'Chatreeo AI' : msg.sender_name }}</span>
+              }
+              <div class="bubble">{{ msg.content }}</div>
+              <span class="timestamp">{{ formatTime(msg.timestamp) }}</span>
+            </div>
+          </div>
+        }
+
+        <!-- AI TYPING INDICATOR -->
+        @if (aiTyping$ | async) {
+          <div class="message-row ai">
+            <div class="avatar-bubble">🤖</div>
+            <div class="bubble-wrap">
+              <span class="sender-name">Chatreeo AI</span>
+              <div class="bubble typing-indicator">
+                <span></span><span></span><span></span>
+              </div>
+            </div>
+          </div>
+        }
+
+        <div #messagesEnd></div>
+      </div>
+
+      <!-- INPUT BAR -->
+      <div class="input-bar">
+        <textarea
+          #messageInput
+          [(ngModel)]="messageText"
+          (keydown)="onKeydown($event)"
+          placeholder="Escribí un mensaje... (Enter para enviar)"
+          rows="1"
+          [disabled]="(connectionStatus$ | async) !== 'connected'"
+        ></textarea>
+        <button
+          class="btn-send"
+          (click)="sendMessage()"
+          [disabled]="!messageText.trim() || (connectionStatus$ | async) !== 'connected'"
+        >
+          ↑
+        </button>
+      </div>
+
+    </main>
+  </div>
+}
